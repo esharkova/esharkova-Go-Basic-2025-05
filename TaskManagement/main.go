@@ -1,6 +1,7 @@
 package main
 
 import (
+	service "TaskManagement/internal/Service"
 	task "TaskManagement/internal/model/Task"
 	taskUser "TaskManagement/internal/model/User"
 	"fmt"
@@ -10,6 +11,12 @@ import (
 )
 
 func main() {
+
+	service.CreateItems()
+
+}
+
+func TerminalCreating() {
 
 	var FirstName string
 	var LastName string
