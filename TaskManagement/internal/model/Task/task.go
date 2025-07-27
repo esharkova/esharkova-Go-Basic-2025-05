@@ -1,6 +1,7 @@
 package task
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -27,5 +28,13 @@ type TaskStatus struct {
 	Statusid      int
 	StartDateTime time.Time /*дата начала установки статуса*/
 	EndDateTime   time.Time /*дата окончания установки статуса*/
+
+}
+
+func (t Task) Insert() int {
+
+	fmt.Println("Добавлена задача ", t.Taskid)
+
+	return t.Taskid
 
 }
