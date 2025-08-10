@@ -1,9 +1,9 @@
-package taskManageService
+package service
 
 import (
-	repository "TaskManagement/internal/Repository"
-	task "TaskManagement/internal/model/Task"
-	taskUser "TaskManagement/internal/model/User"
+	task "TaskManagement/internal/model/task"
+	taskUser "TaskManagement/internal/model/user"
+	repository "TaskManagement/internal/repository"
 	"fmt"
 	"math/rand"
 	"strconv"

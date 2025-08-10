@@ -1,9 +1,9 @@
 package main
 
 import (
-	service "TaskManagement/internal/Service"
-	task "TaskManagement/internal/model/Task"
-	taskUser "TaskManagement/internal/model/User"
+	task "TaskManagement/internal/model/task"
+	taskUser "TaskManagement/internal/model/user"
+	service "TaskManagement/internal/service"
 	"fmt"
 	"math/rand"
 	"strconv"
