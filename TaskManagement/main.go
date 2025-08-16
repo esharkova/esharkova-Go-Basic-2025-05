@@ -4,6 +4,7 @@ import (
 	task "TaskManagement/internal/model/task"
 	taskUser "TaskManagement/internal/model/user"
 	"TaskManagement/internal/repository"
+	"TaskManagement/internal/service"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -15,55 +16,30 @@ func main() {
 	taskChannel := make(chan task.Task, 10)
 	userChannel := make(chan taskUser.User, 10)
 
-	go repository.LogSlices()
+	go service.LogSlices()
 
 	go func() {
 
-		var array = [10]int{}
-		for i := 0; i < len(array); i++ {
-			array[i] = rand.Intn(30)
-		}
+		ticker1 := time.NewTicker(5 * time.Second)
+		defer ticker1.Stop()
 
-		for _, i := range array {
-
-			//если четное значение элемента массива, то добавляем задачу
-			if i%2 == 0 {
-
-				newTask := task.Task{
-					Taskid:             i,
-					TaskNumber:         "TaskNumber" + strconv.Itoa(i),
-					Description:        "TaskDescription" + strconv.Itoa(i),
-					CreateDateTime:     time.Now(),
-					CompletionDateTime: time.Now().AddDate(0, 0, 7),
-				}
-
-				//добавялем в канал задач задачу
-				taskChannel <- newTask
-				fmt.Println("Add Task in Task Channel")
-				time.Sleep(100 * time.Millisecond) // Задержка для демонстрации
-
-				// иначе пользователя
-			} else {
-
-				newUser := taskUser.User{
-					Userid:    i,
-					FirstName: "FirstName" + strconv.Itoa(i),
-					LastName:  "LastName" + strconv.Itoa(i),
-				}
-
-				newUser.AddPassport("Passport" + strconv.Itoa(i))
-
-				//item = newUser
-				userChannel <- newUser
-				fmt.Println("Add User in User Channel")
-				time.Sleep(100 * time.Millisecond) // Задержка для демонстрации
-
-			}
-
-			time.Sleep(50 * time.Millisecond)
+		for range ticker1.C {
+			taskChannel <- service.CreateTask()
+			fmt.Println("Add Task in Task Channel")
 
 		}
 
+	}()
+
+	go func() {
+		ticker2 := time.NewTicker(1 * time.Second)
+		defer ticker2.Stop()
+
+		for range ticker2.C {
+			userChannel <- service.CreateUser()
+			fmt.Println("Add User in User Channel")
+
+		}
 	}()
 
 	fmt.Println("Горутина добавления объектов в каналы завершила свое выполнение")
@@ -88,7 +64,7 @@ func main() {
 
 	time.Sleep(30 * time.Second)
 
-	repository.PrintSlice()
+	service.PrintSlice()
 
 }
 
