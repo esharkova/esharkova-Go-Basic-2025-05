@@ -107,18 +107,21 @@ func LogSlices() {
 		repository.MuUser.Lock()
 		repository.MuTask.Lock()
 
-		currentUsersCount := len(repository.Users)
-		currentTasksCount := len(repository.Tasks)
+		copiedUsers := repository.GetCopyUsers(repository.Users)
+		copiedTasks := repository.GetCopyTasks(repository.Tasks)
+
+		currentUsersCount := len(copiedUsers)
+		currentTasksCount := len(copiedTasks)
 
 		if currentUsersCount != lastUsersCount {
-			newUsers := repository.Users[lastUsersCount:currentUsersCount]
+			newUsers := copiedUsers[lastUsersCount:currentUsersCount]
 			log.Printf("Добавились пользователи: %+v\n", newUsers)
 			lastUsersCount = currentUsersCount
 			lastUserSlice = append(lastUserSlice, newUsers...)
 		}
 
 		if currentTasksCount != lastTasksCount {
-			newTasks := repository.Tasks[lastTasksCount:currentTasksCount]
+			newTasks := copiedTasks[lastTasksCount:currentTasksCount]
 			log.Printf("Добавились задачи: %+v\n", newTasks)
 			lastTasksCount = currentTasksCount
 			lastTasksSlice = append(lastTasksSlice, newTasks...)
@@ -132,6 +135,12 @@ func LogSlices() {
 }
 
 func PrintSlice() {
+	repository.MuUser.Lock()
+	repository.MuTask.Lock()
+
 	fmt.Println("Total users: ", strconv.Itoa(len(repository.Users)), repository.Users)
 	fmt.Println("Total tasks: ", strconv.Itoa(len(repository.Tasks)), repository.Tasks)
+
+	repository.MuUser.Unlock()
+	repository.MuTask.Unlock()
 }
