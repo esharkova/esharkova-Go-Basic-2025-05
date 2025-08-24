@@ -43,6 +43,8 @@ func ProcessValue(tm TaskManage) error {
 }
 
 func GetCopyUsers(currentUsers []*taskUser.User) []*taskUser.User {
+	MuUser.Lock()
+	defer MuUser.Unlock()
 	copiedUsers := make([]*taskUser.User, len(currentUsers))
 	copy(copiedUsers, currentUsers)
 	return copiedUsers
@@ -50,6 +52,8 @@ func GetCopyUsers(currentUsers []*taskUser.User) []*taskUser.User {
 }
 
 func GetCopyTasks(currentTasks []*task.Task) []*task.Task {
+	MuTask.Lock()
+	defer MuTask.Unlock()
 	copiedTasks := make([]*task.Task, len(currentTasks))
 	copy(copiedTasks, currentTasks)
 	return copiedTasks

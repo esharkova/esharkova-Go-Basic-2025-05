@@ -104,8 +104,6 @@ func LogSlices() {
 	defer ticker.Stop()
 
 	for range ticker.C {
-		repository.MuUser.Lock()
-		repository.MuTask.Lock()
 
 		copiedUsers := repository.GetCopyUsers(repository.Users)
 		copiedTasks := repository.GetCopyTasks(repository.Tasks)
@@ -127,20 +125,16 @@ func LogSlices() {
 			lastTasksSlice = append(lastTasksSlice, newTasks...)
 		}
 
-		repository.MuUser.Unlock()
-		repository.MuTask.Unlock()
-
 	}
 
 }
 
 func PrintSlice() {
-	repository.MuUser.Lock()
-	repository.MuTask.Lock()
 
-	fmt.Println("Total users: ", strconv.Itoa(len(repository.Users)), repository.Users)
-	fmt.Println("Total tasks: ", strconv.Itoa(len(repository.Tasks)), repository.Tasks)
+	copiedUsers := repository.GetCopyUsers(repository.Users)
+	copiedTasks := repository.GetCopyTasks(repository.Tasks)
 
-	repository.MuUser.Unlock()
-	repository.MuTask.Unlock()
+	fmt.Println("Total users: ", strconv.Itoa(len(copiedUsers)), copiedUsers)
+	fmt.Println("Total tasks: ", strconv.Itoa(len(copiedTasks)), copiedTasks)
+
 }
