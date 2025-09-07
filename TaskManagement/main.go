@@ -5,9 +5,13 @@ import (
 	taskUser "TaskManagement/internal/model/user"
 	"TaskManagement/internal/repository"
 	"TaskManagement/internal/service"
+	"context"
 	"fmt"
 	"math/rand"
+	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 )
 
@@ -16,56 +20,106 @@ func main() {
 	taskChannel := make(chan task.Task, 10)
 	userChannel := make(chan taskUser.User, 10)
 
-	go service.LogSlices()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel() // Отменяем контекст при завершении функции main
 
-	go func() {
+	go service.LogSlices(ctx)
 
-		ticker1 := time.NewTicker(5 * time.Second)
+	go func(ctx context.Context) {
+
+		ticker1 := time.NewTicker(3 * time.Second)
 		defer ticker1.Stop()
 
-		for range ticker1.C {
-			taskChannel <- service.CreateTask()
-			fmt.Println("Add Task in Task Channel")
-
+		for {
+			select {
+			case <-ticker1.C:
+				taskChannel <- service.CreateTask()
+				fmt.Println("Добавлена задача в канал")
+			case <-ctx.Done():
+				fmt.Println(ctx.Err().Error())
+				fmt.Println("Горутина добавления задач получила отмену контекста")
+				return
+			}
 		}
 
-	}()
+	}(ctx)
 
-	go func() {
+	go func(ctx context.Context) {
 		ticker2 := time.NewTicker(1 * time.Second)
 		defer ticker2.Stop()
 
-		for range ticker2.C {
-			userChannel <- service.CreateUser()
-			fmt.Println("Add User in User Channel")
-
+		for {
+			select {
+			case <-ticker2.C:
+				userChannel <- service.CreateUser()
+				fmt.Println("Добавлен пользователь в канал")
+			case <-ctx.Done():
+				fmt.Println(ctx.Err().Error())
+				fmt.Println("Горутина добавления пользователей получила отмену контекста")
+				return
+			}
 		}
-	}()
+
+	}(ctx)
 
 	fmt.Println("Горутина добавления объектов в каналы завершила свое выполнение")
 
-	go func() {
+	go func(ctx context.Context) {
 
-		for val := range userChannel {
-
-			repository.AddUser(val)
+		for {
+			select {
+			case user := <-userChannel:
+				repository.AddUser(user)
+			case <-ctx.Done():
+				fmt.Println(ctx.Err().Error())
+				fmt.Println("Горутина добавления пользователей в слайс получила отмену контекста")
+				return
+			}
 		}
 
-	}()
+	}(ctx)
 
-	go func() {
+	go func(ctx context.Context) {
 
-		for val := range taskChannel {
-
-			repository.AddTask(val)
+		for {
+			select {
+			case task := <-taskChannel:
+				repository.AddTask(task)
+			case <-ctx.Done():
+				fmt.Println(ctx.Err().Error())
+				fmt.Println("Горутина добавления задач в слайс получила отмену контекста")
+				return
+			}
 		}
 
-	}()
+	}(ctx)
 
-	time.Sleep(30 * time.Second)
+	go gracefulShutdown(cancel)
+
+	time.Sleep(10 * time.Second)
+
+	<-ctx.Done()
 
 	service.PrintSlice()
 
+}
+
+func gracefulShutdown(cancel context.CancelFunc) {
+	// Создаем канал для получения сигналов
+	sigs := make(chan os.Signal, 1)
+
+	// Уведомляем канал о поступлении указанных сигналов
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	fmt.Println("Ожидаем сигнал (нажмите Ctrl+C)...")
+	sig := <-sigs
+	cancel()
+
+	fmt.Println("Получен сигнал:", sig)
+
+	time.Sleep(time.Second)
+
+	fmt.Println("Выход из программы.")
 }
 
 func TerminalCreating() {

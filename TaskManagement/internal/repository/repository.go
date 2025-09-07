@@ -64,10 +64,12 @@ func AddUser(user taskUser.User) {
 	MuUser.Lock()
 	defer MuUser.Unlock()
 	Users = append(Users, &user)
+	fmt.Println("Добавлен пользователь в слайс")
 }
 
 func AddTask(task task.Task) {
 	MuTask.Lock()
 	defer MuTask.Unlock()
 	Tasks = append(Tasks, &task)
+	fmt.Println("Добавлена задача в слайс")
 }
