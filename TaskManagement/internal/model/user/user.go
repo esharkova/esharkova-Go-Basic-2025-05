@@ -1,4 +1,4 @@
-package taskUser
+package user
 
 import (
 	"fmt"

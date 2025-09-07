@@ -1,9 +1,10 @@
 package main
 
 import (
-	service "TaskManagement/internal/Service"
-	task "TaskManagement/internal/model/Task"
-	taskUser "TaskManagement/internal/model/User"
+	task "TaskManagement/internal/model/task"
+	taskUser "TaskManagement/internal/model/user"
+	"TaskManagement/internal/repository"
+	"TaskManagement/internal/service"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -12,7 +13,58 @@ import (
 
 func main() {
 
-	service.CreateItems()
+	taskChannel := make(chan task.Task, 10)
+	userChannel := make(chan taskUser.User, 10)
+
+	go service.LogSlices()
+
+	go func() {
+
+		ticker1 := time.NewTicker(5 * time.Second)
+		defer ticker1.Stop()
+
+		for range ticker1.C {
+			taskChannel <- service.CreateTask()
+			fmt.Println("Add Task in Task Channel")
+
+		}
+
+	}()
+
+	go func() {
+		ticker2 := time.NewTicker(1 * time.Second)
+		defer ticker2.Stop()
+
+		for range ticker2.C {
+			userChannel <- service.CreateUser()
+			fmt.Println("Add User in User Channel")
+
+		}
+	}()
+
+	fmt.Println("Горутина добавления объектов в каналы завершила свое выполнение")
+
+	go func() {
+
+		for val := range userChannel {
+
+			repository.AddUser(val)
+		}
+
+	}()
+
+	go func() {
+
+		for val := range taskChannel {
+
+			repository.AddTask(val)
+		}
+
+	}()
+
+	time.Sleep(30 * time.Second)
+
+	service.PrintSlice()
 
 }
 
