@@ -96,11 +96,7 @@ func main() {
 
 	go gracefulShutdown(cancel)
 
-	time.Sleep(10 * time.Second)
-
 	<-ctx.Done()
-
-	service.PrintSlice()
 
 }
 
@@ -113,6 +109,7 @@ func gracefulShutdown(cancel context.CancelFunc) {
 
 	fmt.Println("Ожидаем сигнал (нажмите Ctrl+C)...")
 	sig := <-sigs
+	service.PrintSlice()
 	cancel()
 
 	fmt.Println("Получен сигнал:", sig)
