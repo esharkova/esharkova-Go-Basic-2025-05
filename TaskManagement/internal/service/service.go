@@ -4,10 +4,12 @@ import (
 	task "TaskManagement/internal/model/task"
 	taskUser "TaskManagement/internal/model/user"
 	repository "TaskManagement/internal/repository"
+	"context"
 	"fmt"
 	"log"
 	"math/rand"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -94,7 +96,7 @@ func CreateTask() task.Task {
 
 }
 
-func LogSlices() {
+func LogSlices(ctx context.Context, wg *sync.WaitGroup) {
 
 	var lastUsersCount, lastTasksCount int
 	var lastUserSlice []*taskUser.User
@@ -103,28 +105,34 @@ func LogSlices() {
 	ticker := time.NewTicker(200 * time.Millisecond)
 	defer ticker.Stop()
 
-	for range ticker.C {
+	for {
+		select {
+		case <-ticker.C:
+			copiedUsers := repository.GetCopyUsers(repository.Users)
+			copiedTasks := repository.GetCopyTasks(repository.Tasks)
 
-		copiedUsers := repository.GetCopyUsers(repository.Users)
-		copiedTasks := repository.GetCopyTasks(repository.Tasks)
+			currentUsersCount := len(copiedUsers)
+			currentTasksCount := len(copiedTasks)
 
-		currentUsersCount := len(copiedUsers)
-		currentTasksCount := len(copiedTasks)
+			if currentUsersCount != lastUsersCount {
+				newUsers := copiedUsers[lastUsersCount:currentUsersCount]
+				log.Printf("Добавились пользователи: %+v\n", newUsers)
+				lastUsersCount = currentUsersCount
+				lastUserSlice = append(lastUserSlice, newUsers...)
+			}
 
-		if currentUsersCount != lastUsersCount {
-			newUsers := copiedUsers[lastUsersCount:currentUsersCount]
-			log.Printf("Добавились пользователи: %+v\n", newUsers)
-			lastUsersCount = currentUsersCount
-			lastUserSlice = append(lastUserSlice, newUsers...)
+			if currentTasksCount != lastTasksCount {
+				newTasks := copiedTasks[lastTasksCount:currentTasksCount]
+				log.Printf("Добавились задачи: %+v\n", newTasks)
+				lastTasksCount = currentTasksCount
+				lastTasksSlice = append(lastTasksSlice, newTasks...)
+			}
+		case <-ctx.Done():
+			fmt.Println(ctx.Err().Error())
+			fmt.Println("Горутина логирования получила отмену контекста")
+			wg.Done()
+			return
 		}
-
-		if currentTasksCount != lastTasksCount {
-			newTasks := copiedTasks[lastTasksCount:currentTasksCount]
-			log.Printf("Добавились задачи: %+v\n", newTasks)
-			lastTasksCount = currentTasksCount
-			lastTasksSlice = append(lastTasksSlice, newTasks...)
-		}
-
 	}
 
 }
