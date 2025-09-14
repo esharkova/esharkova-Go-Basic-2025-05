@@ -9,6 +9,7 @@ import (
 	"log"
 	"math/rand"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -95,7 +96,7 @@ func CreateTask() task.Task {
 
 }
 
-func LogSlices(ctx context.Context) {
+func LogSlices(ctx context.Context, wg *sync.WaitGroup) {
 
 	var lastUsersCount, lastTasksCount int
 	var lastUserSlice []*taskUser.User
@@ -129,6 +130,7 @@ func LogSlices(ctx context.Context) {
 		case <-ctx.Done():
 			fmt.Println(ctx.Err().Error())
 			fmt.Println("Горутина логирования получила отмену контекста")
+			wg.Done()
 			return
 		}
 	}

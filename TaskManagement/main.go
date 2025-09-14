@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+	"sync"
 	"syscall"
 	"time"
 )
@@ -23,7 +24,11 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel() // Отменяем контекст при завершении функции main
 
-	go service.LogSlices(ctx)
+	var wg sync.WaitGroup
+
+	wg.Add(6)
+
+	go service.LogSlices(ctx, &wg)
 
 	go func(ctx context.Context) {
 
@@ -38,6 +43,7 @@ func main() {
 			case <-ctx.Done():
 				fmt.Println(ctx.Err().Error())
 				fmt.Println("Горутина добавления задач получила отмену контекста")
+				wg.Done()
 				return
 			}
 		}
@@ -56,13 +62,12 @@ func main() {
 			case <-ctx.Done():
 				fmt.Println(ctx.Err().Error())
 				fmt.Println("Горутина добавления пользователей получила отмену контекста")
+				wg.Done()
 				return
 			}
 		}
 
 	}(ctx)
-
-	fmt.Println("Горутина добавления объектов в каналы завершила свое выполнение")
 
 	go func(ctx context.Context) {
 
@@ -73,6 +78,7 @@ func main() {
 			case <-ctx.Done():
 				fmt.Println(ctx.Err().Error())
 				fmt.Println("Горутина добавления пользователей в слайс получила отмену контекста")
+				wg.Done()
 				return
 			}
 		}
@@ -88,19 +94,23 @@ func main() {
 			case <-ctx.Done():
 				fmt.Println(ctx.Err().Error())
 				fmt.Println("Горутина добавления задач в слайс получила отмену контекста")
+				wg.Done()
 				return
 			}
 		}
 
 	}(ctx)
 
-	go gracefulShutdown(cancel)
+	go gracefulShutdown(cancel, &wg)
 
-	<-ctx.Done()
+	wg.Wait()
+
+	fmt.Println("Все горутины завершили выполнение")
+	service.PrintSlice()
 
 }
 
-func gracefulShutdown(cancel context.CancelFunc) {
+func gracefulShutdown(cancel context.CancelFunc, wg *sync.WaitGroup) {
 	// Создаем канал для получения сигналов
 	sigs := make(chan os.Signal, 1)
 
@@ -109,14 +119,13 @@ func gracefulShutdown(cancel context.CancelFunc) {
 
 	fmt.Println("Ожидаем сигнал (нажмите Ctrl+C)...")
 	sig := <-sigs
-	service.PrintSlice()
+
 	cancel()
 
 	fmt.Println("Получен сигнал:", sig)
-
-	time.Sleep(time.Second)
-
 	fmt.Println("Выход из программы.")
+
+	wg.Done()
 }
 
 func TerminalCreating() {
