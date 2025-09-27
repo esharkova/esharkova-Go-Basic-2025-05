@@ -18,6 +18,9 @@ import (
 
 func main() {
 
+	repository.ReadUsersFromFileAndAddToSlice()
+	repository.ReadTasksFromFileAndAddToSlice()
+
 	taskChannel := make(chan task.Task, 10)
 	userChannel := make(chan taskUser.User, 10)
 
@@ -75,6 +78,7 @@ func main() {
 			select {
 			case user := <-userChannel:
 				repository.AddUser(user)
+				repository.WriteUserToFile(user)
 			case <-ctx.Done():
 				fmt.Println(ctx.Err().Error())
 				fmt.Println("Горутина добавления пользователей в слайс получила отмену контекста")
@@ -91,6 +95,7 @@ func main() {
 			select {
 			case task := <-taskChannel:
 				repository.AddTask(task)
+				repository.WriteTaskToFile(task)
 			case <-ctx.Done():
 				fmt.Println(ctx.Err().Error())
 				fmt.Println("Горутина добавления задач в слайс получила отмену контекста")
