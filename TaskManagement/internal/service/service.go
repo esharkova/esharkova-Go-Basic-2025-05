@@ -142,7 +142,13 @@ func PrintSlice() {
 	copiedUsers := repository.GetCopyUsers(repository.Users)
 	copiedTasks := repository.GetCopyTasks(repository.Tasks)
 
-	fmt.Println("Total users: ", strconv.Itoa(len(copiedUsers)), copiedUsers)
-	fmt.Println("Total tasks: ", strconv.Itoa(len(copiedTasks)), copiedTasks)
+	fmt.Println("Total users: ", strconv.Itoa(len(copiedUsers)))
+	for _, user := range copiedUsers {
+		fmt.Printf("  %+v\n", *user)
+	}
+	fmt.Println("Total tasks: ", strconv.Itoa(len(copiedTasks)))
+	for _, task := range copiedTasks {
+		fmt.Printf("  %+v\n", *task)
+	}
 
 }
