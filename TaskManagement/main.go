@@ -18,6 +18,9 @@ import (
 
 func main() {
 
+	repository.ReadUsersFromFileAndAddToSlice()
+	repository.ReadTasksFromFileAndAddToSlice()
+
 	taskChannel := make(chan task.Task, 10)
 	userChannel := make(chan taskUser.User, 10)
 
