@@ -11,11 +11,15 @@ import (
 	"sync"
 )
 
+var LastUsersCount, LastTasksCount int
+
 var Users []*taskUser.User
 var Tasks []*task.Task
 
 var MuUser sync.Mutex
 var MuTask sync.Mutex
+var MuUserCount sync.Mutex
+var MuTaskCount sync.Mutex
 
 type TaskManage interface {
 	Insert() int
@@ -68,6 +72,7 @@ func AddUser(user taskUser.User) {
 	defer MuUser.Unlock()
 	Users = append(Users, &user)
 	fmt.Println("Добавлен пользователь в слайс")
+	WriteUserToFile(user)
 }
 
 func AddTask(task task.Task) {
@@ -75,12 +80,35 @@ func AddTask(task task.Task) {
 	defer MuTask.Unlock()
 	Tasks = append(Tasks, &task)
 	fmt.Println("Добавлена задача в слайс")
+	WriteTaskToFile(task)
+
+}
+
+func GetLastUserCount() int {
+	MuUserCount.Lock()
+	defer MuUserCount.Unlock()
+	return LastUsersCount
+}
+
+func GetLastTasksCount() int {
+	MuTaskCount.Lock()
+	defer MuTaskCount.Unlock()
+	return LastTasksCount
+}
+
+func SetLastUserCount(count int) {
+	MuUserCount.Lock()
+	defer MuUserCount.Unlock()
+	LastUsersCount = count
+}
+
+func SetLastTasksCount(count int) {
+	MuTaskCount.Lock()
+	defer MuTaskCount.Unlock()
+	LastTasksCount = count
 }
 
 func WriteUserToFile(user taskUser.User) {
-
-	MuUser.Lock()
-	defer MuUser.Unlock()
 
 	file, err := os.OpenFile("users.json", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
@@ -106,9 +134,6 @@ func WriteUserToFile(user taskUser.User) {
 }
 
 func WriteTaskToFile(task task.Task) {
-
-	MuTask.Lock()
-	defer MuTask.Unlock()
 
 	file, err := os.OpenFile("tasks.json", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
@@ -170,6 +195,8 @@ func ReadUsersFromFileAndAddToSlice() {
 		fmt.Printf("  %+v\n", *user)
 	}
 
+	SetLastUserCount(len(Users))
+
 }
 
 func ReadTasksFromFileAndAddToSlice() {
@@ -208,5 +235,7 @@ func ReadTasksFromFileAndAddToSlice() {
 	for _, task := range Tasks {
 		fmt.Printf("  %+v\n", *task)
 	}
+
+	SetLastTasksCount(len(Tasks))
 
 }

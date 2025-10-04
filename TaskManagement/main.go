@@ -78,7 +78,6 @@ func main() {
 			select {
 			case user := <-userChannel:
 				repository.AddUser(user)
-				repository.WriteUserToFile(user)
 			case <-ctx.Done():
 				fmt.Println(ctx.Err().Error())
 				fmt.Println("Горутина добавления пользователей в слайс получила отмену контекста")
@@ -95,7 +94,6 @@ func main() {
 			select {
 			case task := <-taskChannel:
 				repository.AddTask(task)
-				repository.WriteTaskToFile(task)
 			case <-ctx.Done():
 				fmt.Println(ctx.Err().Error())
 				fmt.Println("Горутина добавления задач в слайс получила отмену контекста")
