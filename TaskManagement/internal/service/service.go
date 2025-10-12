@@ -99,6 +99,7 @@ func CreateTask() task.Task {
 func LogSlices(ctx context.Context, wg *sync.WaitGroup) {
 
 	var lastUsersCount, lastTasksCount int
+
 	var lastUserSlice []*taskUser.User
 	var lastTasksSlice []*task.Task
 
@@ -111,21 +112,28 @@ func LogSlices(ctx context.Context, wg *sync.WaitGroup) {
 			copiedUsers := repository.GetCopyUsers(repository.Users)
 			copiedTasks := repository.GetCopyTasks(repository.Tasks)
 
+			lastUsersCount = repository.GetLastUserCount()
+			lastTasksCount = repository.GetLastTasksCount()
+
 			currentUsersCount := len(copiedUsers)
 			currentTasksCount := len(copiedTasks)
 
 			if currentUsersCount != lastUsersCount {
 				newUsers := copiedUsers[lastUsersCount:currentUsersCount]
 				log.Printf("Добавились пользователи: %+v\n", newUsers)
-				lastUsersCount = currentUsersCount
 				lastUserSlice = append(lastUserSlice, newUsers...)
+				lastUsersCount = currentUsersCount
+				repository.SetLastUserCount(lastUsersCount)
+
 			}
 
 			if currentTasksCount != lastTasksCount {
 				newTasks := copiedTasks[lastTasksCount:currentTasksCount]
 				log.Printf("Добавились задачи: %+v\n", newTasks)
-				lastTasksCount = currentTasksCount
 				lastTasksSlice = append(lastTasksSlice, newTasks...)
+				lastTasksCount = currentTasksCount
+				repository.SetLastTasksCount(lastTasksCount)
+
 			}
 		case <-ctx.Done():
 			fmt.Println(ctx.Err().Error())
@@ -142,7 +150,13 @@ func PrintSlice() {
 	copiedUsers := repository.GetCopyUsers(repository.Users)
 	copiedTasks := repository.GetCopyTasks(repository.Tasks)
 
-	fmt.Println("Total users: ", strconv.Itoa(len(copiedUsers)), copiedUsers)
-	fmt.Println("Total tasks: ", strconv.Itoa(len(copiedTasks)), copiedTasks)
+	fmt.Println("Total users: ", strconv.Itoa(len(copiedUsers)))
+	for _, user := range copiedUsers {
+		fmt.Printf("  %+v\n", *user)
+	}
+	fmt.Println("Total tasks: ", strconv.Itoa(len(copiedTasks)))
+	for _, task := range copiedTasks {
+		fmt.Printf("  %+v\n", *task)
+	}
 
 }
