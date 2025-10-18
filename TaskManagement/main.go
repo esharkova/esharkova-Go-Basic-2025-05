@@ -1,6 +1,7 @@
 package main
 
 import (
+	"TaskManagement/internal/app"
 	task "TaskManagement/internal/model/task"
 	taskUser "TaskManagement/internal/model/user"
 	"TaskManagement/internal/repository"
@@ -20,6 +21,16 @@ func main() {
 
 	repository.ReadUsersFromFileAndAddToSlice()
 	repository.ReadTasksFromFileAndAddToSlice()
+
+	application := app.New()
+
+	application.Start()
+
+	application.Stop()
+
+}
+
+func TimerCreating() {
 
 	taskChannel := make(chan task.Task, 10)
 	userChannel := make(chan taskUser.User, 10)

@@ -11,6 +11,16 @@ type User struct {
 	passportNumber string
 }
 
+type CreateUserRequest struct {
+	FirstName string `json:"firstName" binding:"required"`
+	LastName  string `json:"lastName" binding:"required"`
+}
+
+type UpdateUserRequest struct {
+	FirstName *string `json:"firstName"`
+	LastName  *string `json:"lastName"`
+}
+
 func (u *User) AddPassport(passportNumber string) {
 	u.passportNumber = passportNumber
 
