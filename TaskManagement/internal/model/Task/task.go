@@ -15,6 +15,17 @@ type Task struct {
 	Priority           int       /*приоритет*/
 }
 
+type CreateTaskRequest struct {
+	TaskNumber  string `json:"taskNumber" binding:"required,min=2,max=10"`
+	Description string `json:"description" binding:"required"`
+	Priority    int    `json:"priority" binding:"required"`
+}
+type UpdateTaskRequest struct {
+	TaskNumber  *string `json:"taskNumber" binding:"min=2,max=10"`
+	Description *string `json:"description"`
+	Priority    *int    `json:"priority"`
+}
+
 /*Status - справочник возможных статусов задачи (н-р, "планируется", "в процессе", "завершено")*/
 type Status struct {
 	Statusid   int
