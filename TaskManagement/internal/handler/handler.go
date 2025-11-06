@@ -10,6 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//go:generate mockgen -source=handler.go -destination=mock/handler.go -package=mocks
+
 type Handler struct {
 	uc useCase
 }
