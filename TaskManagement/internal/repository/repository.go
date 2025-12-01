@@ -430,7 +430,7 @@ func UpdateTaskInFile(id int, newTask task.UpdateTaskRequest) {
 	err = os.Rename(tempFile.Name(), "tasks.json")
 
 	if err != nil {
-		fmt.Printf("не удалось заменить файл tasks.json", err)
+		fmt.Printf("не удалось заменить файл tasks.json %v", err)
 		return
 	}
 }
@@ -503,7 +503,7 @@ func DeleteTaskInFile(id int) {
 	err = os.Rename(tempFile.Name(), "tasks.json")
 
 	if err != nil {
-		fmt.Printf("не удалось заменить файл tasks.json", err)
+		fmt.Printf("не удалось заменить файл tasks.json %v", err)
 		return
 	}
 }
@@ -581,7 +581,7 @@ func UpdateUserInFile(id int, newUser taskUser.UpdateUserRequest) {
 	err = os.Rename(tempFile.Name(), "users.json")
 
 	if err != nil {
-		fmt.Printf("не удалось заменить файл users.json", err)
+		fmt.Printf("не удалось заменить файл users.json %v", err)
 		return
 	}
 }
@@ -653,7 +653,7 @@ func DeleteUserInFile(id int) {
 	err = os.Rename(tempFile.Name(), "users.json")
 
 	if err != nil {
-		fmt.Printf("не удалось заменить файл users.json", err)
+		fmt.Printf("не удалось заменить файл users.json %v", err)
 		return
 	}
 }

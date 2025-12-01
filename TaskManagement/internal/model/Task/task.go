@@ -21,7 +21,7 @@ type CreateTaskRequest struct {
 	Priority    int    `json:"priority" binding:"required"`
 }
 type UpdateTaskRequest struct {
-	TaskNumber  *string `json:"taskNumber" binding:"min=2,max=10"`
+	TaskNumber  *string `json:"taskNumber" binding:"required,min=2,max=10"`
 	Description *string `json:"description"`
 	Priority    *int    `json:"priority"`
 }
