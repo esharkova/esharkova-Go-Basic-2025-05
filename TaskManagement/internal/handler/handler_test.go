@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	mock "TaskManagement/internal/handler/mock"
 
@@ -24,11 +23,6 @@ func TestHandler_CreateUser(t *testing.T) {
 		LastName:  "Doe",
 	}
 
-	responseUser := user.User{
-		Userid:    1,
-		FirstName: "John Doe",
-		LastName:  "Doe",
-	}
 	tests := []struct {
 		name           string // description of this test case
 		body           string
@@ -42,7 +36,7 @@ func TestHandler_CreateUser(t *testing.T) {
 				return string(b)
 			}(),
 			mockSetup: func(m *mock.MockuseCase) {
-				m.EXPECT().CreateUser(gomock.Any(), validUser).Return(responseUser)
+				m.EXPECT().CreateUser(gomock.Any(), validUser).Return(nil)
 			},
 			expectedStatus: http.StatusCreated,
 		},
@@ -80,15 +74,6 @@ func TestHandler_CreateTask(t *testing.T) {
 		Priority:    1,
 	}
 
-	responseTask := task.Task{
-		Taskid:             1,
-		Description:        "Test description",
-		TaskNumber:         "TaskNumber",
-		Priority:           1,
-		CreateDateTime:     time.Now(),
-		CompletionDateTime: time.Now().AddDate(0, 0, 7),
-	}
-
 	tests := []struct {
 		name string // description of this test case
 		// Named input parameters for receiver constructor.
@@ -103,7 +88,7 @@ func TestHandler_CreateTask(t *testing.T) {
 				return string(b)
 			}(),
 			mockSetup: func(m *mock.MockuseCase) {
-				m.EXPECT().CreateTask(gomock.Any(), validTask).Return(responseTask)
+				m.EXPECT().CreateTask(gomock.Any(), validTask).Return(nil)
 			},
 			expectedStatus: http.StatusCreated,
 		},
@@ -114,7 +99,7 @@ func TestHandler_CreateTask(t *testing.T) {
 			defer ctrl.Finish()
 
 			mockUC := mock.NewMockuseCase(ctrl)
-			mockUC.EXPECT().CreateTask(gomock.Any(), validTask).Return(responseTask)
+			mockUC.EXPECT().CreateTask(gomock.Any(), validTask).Return(nil)
 
 			handler := handler.New(mockUC)
 			router := gin.New()
@@ -132,7 +117,7 @@ func TestHandler_CreateTask(t *testing.T) {
 			var resp task.Task
 			err := json.Unmarshal(w.Body.Bytes(), &resp)
 			assert.NoError(t, err)
-			assert.Equal(t, "TaskNumber", resp.TaskNumber)
+
 		})
 	}
 }

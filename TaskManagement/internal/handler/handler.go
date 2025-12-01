@@ -78,8 +78,14 @@ func (h *Handler) CreateUser() gin.HandlerFunc {
 			return
 		}
 
-		res := h.uc.CreateUser(ctx.Request.Context(), args)
-		ctx.JSON(http.StatusCreated, res)
+		err = h.uc.CreateUser(ctx.Request.Context(), args)
+
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
+
+		ctx.JSON(http.StatusCreated, nil)
 
 	}
 }
@@ -189,8 +195,14 @@ func (h *Handler) CreateTask() gin.HandlerFunc {
 			return
 		}
 
-		res := h.uc.CreateTask(ctx.Request.Context(), args)
-		ctx.JSON(http.StatusCreated, res)
+		err = h.uc.CreateTask(ctx.Request.Context(), args)
+
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
+
+		ctx.JSON(http.StatusCreated, nil)
 
 	}
 }
@@ -215,13 +227,13 @@ func (h *Handler) GetTasks() gin.HandlerFunc {
 
 type useCase interface {
 	GetTasks() []*task.Task
-	CreateTask(context context.Context, args task.CreateTaskRequest) task.Task
+	CreateTask(context context.Context, args task.CreateTaskRequest) error
 	GetTask(id int) (task.Task, error)
 	UpdateTask(context context.Context, args task.UpdateTaskRequest, id int) (task.Task, error)
 	DeleteTask(context context.Context, id int) error
 	GetUsers() []*user.User
 	GetUser(id int) (user.User, error)
-	CreateUser(ontext context.Context, args user.CreateUserRequest) user.User
+	CreateUser(ontext context.Context, args user.CreateUserRequest) error
 	UpdateUser(context context.Context, args user.UpdateUserRequest, id int) (user.User, error)
 	DeleteUser(context context.Context, id int) error
 }

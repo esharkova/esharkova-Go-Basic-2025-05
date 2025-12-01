@@ -1,9 +1,11 @@
-package app
+package appdb
 
 import (
+	"TaskManagement/db"
 	"TaskManagement/internal/handler"
 	"TaskManagement/internal/usecase"
 	"context"
+	"database/sql"
 	"errors"
 	"net/http"
 	"os"
@@ -16,6 +18,8 @@ import (
 	"log"
 )
 
+var DbConn *sql.DB
+
 type App struct {
 	router *gin.Engine
 	server *http.Server
@@ -24,7 +28,15 @@ type App struct {
 func New() *App {
 	router := gin.Default()
 
-	uc := usecase.New()
+	dsn := "host=host.docker.internal user=esharkova password=esharkova dbname=tasks sslmode=disable"
+	DbConn, err := sql.Open("pgx", dsn)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	queries := db.New(DbConn)
+
+	uc := usecase.New(queries)
 
 	h := handler.New(uc)
 
@@ -75,4 +87,5 @@ func (a *App) Stop() {
 	}
 
 	log.Println("Server exited")
+
 }

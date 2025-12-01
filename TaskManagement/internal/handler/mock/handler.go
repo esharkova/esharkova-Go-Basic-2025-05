@@ -37,10 +37,10 @@ func (m *MockuseCase) EXPECT() *MockuseCaseMockRecorder {
 }
 
 // CreateTask mocks base method.
-func (m *MockuseCase) CreateTask(context context.Context, args task.CreateTaskRequest) task.Task {
+func (m *MockuseCase) CreateTask(context context.Context, args task.CreateTaskRequest) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateTask", context, args)
-	ret0, _ := ret[0].(task.Task)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 
@@ -51,10 +51,10 @@ func (mr *MockuseCaseMockRecorder) CreateTask(context, args interface{}) *gomock
 }
 
 // CreateUser mocks base method.
-func (m *MockuseCase) CreateUser(ontext context.Context, args user.CreateUserRequest) user.User {
+func (m *MockuseCase) CreateUser(ontext context.Context, args user.CreateUserRequest) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateUser", ontext, args)
-	ret0, _ := ret[0].(user.User)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 
